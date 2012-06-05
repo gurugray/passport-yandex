@@ -1,0 +1,30 @@
+{
+  "name": "passport-yandex",
+  "version": "0.0.1",
+  "description": "Yandex authentication strategy for Passport.",
+  "author": { "name": "Sergey Sergeev", "email": "gurugray@yandex.ru", "url": "http://gurugray.ru/" },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/gurugray/passport-yandex.git"
+  },
+  "bugs": {
+    "url": "http://github.com/gurugray/passport-yandex/issues"
+  },
+  "main": "./lib/passport-yandex",
+  "dependencies": {
+    "pkginfo": "0.2.x",
+    "passport-oauth": "0.1.x"
+  },
+  "devDependencies": {
+    "vows": "0.6.x"
+  },
+  "scripts": {
+    "test": "NODE_PATH=lib node_modules/.bin/vows test/*-test.js"
+  },
+  "engines": { "node": ">= 0.4.0" },
+  "licenses": [ {
+    "type": "MIT",
+    "url": "http://www.opensource.org/licenses/MIT" 
+  } ],
+  "keywords": ["passport", "yandex", "auth", "authn", "authentication", "identity"]
+}
