@@ -1,6 +1,6 @@
 {
   "name": "passport-yandex",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Yandex authentication strategy for Passport.",
   "author": { "name": "Sergey Sergeev", "email": "gurugray@yandex.ru", "url": "http://gurugray.ru/" },
   "repository": {
