@@ -1,8 +1,12 @@
 {
   "name": "passport-yandex",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Yandex authentication strategy for Passport.",
-  "author": { "name": "Sergey Sergeev", "email": "gurugray@yandex.ru", "url": "http://gurugray.ru/" },
+  "author": {
+    "name": "Sergey Sergeev",
+    "email": "gurugray@yandex.ru",
+    "url": "http://gurugray.ru/"
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/gurugray/passport-yandex.git"
@@ -21,10 +25,16 @@
   "scripts": {
     "test": "NODE_PATH=lib node_modules/.bin/vows test/*-test.js"
   },
-  "engines": { "node": ">= 0.8.0" },
-  "licenses": [ {
-    "type": "MIT",
-    "url": "http://www.opensource.org/licenses/MIT" 
-  } ],
-  "keywords": ["passport", "yandex", "auth", "authn", "authentication", "identity"]
+  "engines": {
+    "node": ">= 0.10.0"
+  },
+  "license": "MIT",
+  "keywords": [
+    "passport",
+    "yandex",
+    "auth",
+    "authn",
+    "authentication",
+    "identity"
+  ]
 }
