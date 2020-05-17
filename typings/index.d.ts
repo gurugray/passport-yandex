@@ -7,6 +7,10 @@ export interface Profile {
     emails?: {value: string}[];
     gender?: string;
     username?: string;
+    photos?: {
+        value: string;
+        type?: string;
+    }[];
     [key: string]: any
 }
 
