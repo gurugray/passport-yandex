@@ -31,7 +31,7 @@ vows.describe('YandexStrategy').addBatch({
       // mock
       strategy._oauth2.get = function(url, accessToken, callback) {
         if (url === 'https://login.yandex.ru/info?format=json') {
-            var body = '{ "display_name": "TestUser", "id": "00000000", "sex": "male", "emails": ["testuser@yandex.ru"], "default_email": "TestUser@yandex.ru", "real_name": "User Test"}';
+            var body = '{ "display_name": "TestUser", "id": "00000000", "sex": "male", "emails": ["testuser@yandex.ru"], "default_email": "TestUser@yandex.ru", "real_name": "User Test", "default_avatar_id": "0/0-0"}';
           callback(null, body, undefined);
         } else {
           callback(new Error('invalid user profile URL'));
@@ -64,6 +64,9 @@ vows.describe('YandexStrategy').addBatch({
         assert.equal(profile.gender, 'male');
         assert.lengthOf(profile.emails, 1);
         assert.equal(profile.emails[0].value, 'TestUser@yandex.ru');
+        assert.lengthOf(profile.photos, 1);
+        assert.equal(profile.photos[0].value, 'https://avatars.yandex.net/get-yapic/0/0-0/islands-200');
+        assert.equal(profile.photos[0].type, 'thumbnail');
       },
       'should set raw property' : function(err, profile) {
         assert.isString(profile._raw);
