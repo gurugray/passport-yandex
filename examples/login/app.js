@@ -1,11 +1,13 @@
-var express = require('express')
-  , passport = require('passport')
-  , util = require('util')
-  , YandexStrategy = require('passport-yandex').Strategy;
+var express = require('express');
+var passport = require('passport');
+var morgan = require('morgan');
+var bodyParser = require('body-parser');
+var session = require('express-session');
+var YandexStrategy = require('passport-yandex').Strategy;
 
-var YANDEX_CLIENT_ID = "--insert-yandex-client-id-here--"
-var YANDEX_CLIENT_SECRET = "--insert-yandex-client-secret-here--";
-
+var YANDEX_CLIENT_ID = '--insert-yandex-client-id-here--';
+var YANDEX_CLIENT_SECRET = '--insert-yandex-client-secret-here--';
+var YANDEX_CALLBACK_URL = 'http://localhost:8080/auth/yandex/callback';
 
 // Passport session setup.
 //   To support persistent login sessions, Passport needs to be able to
@@ -30,7 +32,7 @@ passport.deserializeUser(function(obj, done) {
 passport.use(new YandexStrategy({
     clientID: YANDEX_CLIENT_ID,
     clientSecret: YANDEX_CLIENT_SECRET,
-    callbackURL: "http://127.0.0.1:3000/auth/yandex/callback"
+    callbackURL: YANDEX_CALLBACK_URL
   },
   function(accessToken, refreshToken, profile, done) {
     // asynchronous verification, for effect...
@@ -47,36 +49,37 @@ passport.use(new YandexStrategy({
 
 
 
-
-var app = express.createServer();
+var app = express();
 
 // configure Express
-app.configure(function() {
-  app.set('views', __dirname + '/views');
-  app.set('view engine', 'ejs');
-  app.use(express.logger());
-  app.use(express.cookieParser());
-  app.use(express.bodyParser());
-  app.use(express.methodOverride());
-  app.use(express.session({ secret: 'keyboard cat' }));
-  // Initialize Passport!  Also use passport.session() middleware, to support
-  // persistent login sessions (recommended).
-  app.use(passport.initialize());
-  app.use(passport.session());
-  app.use(app.router);
-  app.use(express.static(__dirname + '/public'));
-});
+app.set('view engine', 'ejs');
+app.set('views', __dirname + '/views');
+
+app.use( morgan('dev') );
+app.use( bodyParser.urlencoded({ extended: false }) );
+app.use( session({
+  resave: false,
+  secret: 'session cat',
+  saveUninitialized: false,
+}) );
+// Initialize Passport!  Also use passport.session() middleware, to support
+// persistent login sessions (recommended).
+app.use( passport.initialize() );
+app.use( passport.session() );
+app.use( express.static(__dirname + '/public') );
 
 
-app.get('/', function(req, res){
+app.get('/', function(req, res) {
   res.render('index', { user: req.user });
 });
 
-app.get('/account', ensureAuthenticated, function(req, res){
+app.get('/account', 
+  ensureAuthenticated, 
+  function(req, res) {
   res.render('account', { user: req.user });
 });
 
-app.get('/login', function(req, res){
+app.get('/login', function(req, res) {
   res.render('login', { user: req.user });
 });
 
@@ -87,7 +90,7 @@ app.get('/login', function(req, res){
 //   will redirect the user back to this application at /auth/yandex/callback
 app.get('/auth/yandex',
   passport.authenticate('yandex'),
-  function(req, res){
+  function(req, res) {
     // The request will be redirected to Yandex for authentication, so this
     // function will not be called.
   });
@@ -100,7 +103,7 @@ app.get('/auth/yandex',
 app.get('/auth/yandex/callback',
   passport.authenticate('yandex', { failureRedirect: '/login' }),
   function(req, res) {
-    res.redirect('/');
+    res.redirect('/account');
   });
 
 app.get('/logout', function(req, res){
@@ -108,8 +111,9 @@ app.get('/logout', function(req, res){
   res.redirect('/');
 });
 
-app.listen(3000);
-
+var s1 = app.listen(8080, function() {
+  console.log( 'Server start on port: %s', s1.address().port );
+});
 
 // Simple route middleware to ensure user is authenticated.
 //   Use this route middleware on any resource that needs to be protected.  If
