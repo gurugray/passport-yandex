@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "@types/passport": "^1.0.0",
-    "vows": "~0.7.0"
+    "vows": "~0.8.3"
   },
   "scripts": {
     "test": "NODE_PATH=lib node_modules/.bin/vows test/*-test.js"
