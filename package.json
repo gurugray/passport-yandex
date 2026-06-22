@@ -9,10 +9,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/gurugray/passport-yandex.git"
+    "url": "git+https://github.com/gurugray/passport-yandex.git"
   },
   "bugs": {
-    "url": "http://github.com/gurugray/passport-yandex/issues"
+    "url": "https://github.com/gurugray/passport-yandex/issues"
   },
   "main": "./lib/passport-yandex",
   "typings": "./typings/index.d.ts",
