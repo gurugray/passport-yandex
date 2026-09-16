@@ -180,5 +180,5 @@ application is still required for a live acceptance test before publishing.
 
 ## License
 
-MIT. Original implementation by Sergey Sergeev, based on Passport by Jared Hanson.
+MIT. Original implementation by [Sergii Serieiev](https://gray.guru), based on Passport by Jared Hanson.
 See [LICENSE](LICENSE).
