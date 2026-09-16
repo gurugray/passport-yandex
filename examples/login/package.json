@@ -1,10 +1,14 @@
 {
-  "name": "passport-yandex-examples-login",
-  "version": "0.0.0",
+  "name": "passport-yandex-example-login",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": { "start": "node app.js" },
+  "engines": { "node": ">=22" },
   "dependencies": {
-    "express": ">= 0.0.0",
-    "ejs": ">= 0.0.0",
-    "passport": ">= 0.0.0",
-    "passport-yandex": ">= 0.0.0"
+    "express": "^5.1.0",
+    "express-session": "^1.18.2",
+    "ejs": "^3.1.10",
+    "passport": "^0.7.0",
+    "passport-yandex": "file:../.."
   }
 }
