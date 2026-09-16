@@ -1,5 +1,4 @@
-<% if (!user) { %>
-	<h2>Welcome! Please log in.</h2>
-<% } else { %>
-	<h2>Hello, <%= user.name.givenName %>.</h2>
-<% } %>
+<%- include('header') %>
+<h1>Yandex ID login example</h1>
+<p><%= user ? 'Hello, ' + (user.displayName || user.id) : 'Please log in.' %></p>
+<%- include('footer') %>

@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Yandex ID login example</title></head>
+<body>
+<nav><a href="/">Home</a> · <a href="/account">Account</a> · <a href="/login">Log in</a></nav>
+<% if (user) { %>
+<form method="post" action="/logout">
+  <input type="hidden" name="csrfToken" value="<%= csrfToken %>">
+  <button type="submit">Log out</button>
+</form>
+<% } %>

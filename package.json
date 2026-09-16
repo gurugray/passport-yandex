@@ -1,6 +1,6 @@
 {
   "name": "passport-yandex",
-  "version": "0.0.5",
+  "version": "1.0.0-beta.0",
   "description": "Yandex authentication strategy for Passport.",
   "author": {
     "name": "Sergey Sergeev",
@@ -17,18 +17,24 @@
   "main": "./lib/passport-yandex",
   "typings": "./typings/index.d.ts",
   "dependencies": {
-    "pkginfo": "0.3.x",
-    "passport-oauth": "1.0.x"
+    "passport-oauth2": "^1.8.0",
+    "@types/passport-oauth2": "^1.8.0"
   },
   "devDependencies": {
-    "@types/passport": "^1.0.0",
-    "vows": "~0.7.0"
+    "passport": "^0.7.0",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2",
+    "supertest": "^7.1.4",
+    "nock": "^14.0.10",
+    "typescript": "^5.9.3",
+    "@types/node": "^22.0.0"
   },
   "scripts": {
-    "test": "NODE_PATH=lib node_modules/.bin/vows test/*-test.js"
+    "test": "node --test test/*.test.js && npm run test:types",
+    "test:types": "tsc --noEmit --strict --module commonjs --target es2022 test/types.ts"
   },
   "engines": {
-    "node": ">= 0.10.0"
+    "node": ">=22"
   },
   "license": "MIT",
   "keywords": [
@@ -38,5 +44,12 @@
     "authn",
     "authentication",
     "identity"
+  ],
+  "files": [
+    "lib/",
+    "typings/",
+    "README.md",
+    "MIGRATION.md",
+    "LICENSE"
   ]
 }

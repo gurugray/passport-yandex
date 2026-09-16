@@ -1,3 +1,5 @@
+<%- include('header') %>
+<h1>Your account</h1>
 <p>ID: <%= user.id %></p>
-<p>First Name: <%= user.name.givenName %></p>
-<p>Last Name: <%= user.name.familyName %></p>
+<p>Name: <%= user.displayName || 'Not provided' %></p>
+<%- include('footer') %>

@@ -1,122 +1,65 @@
-var express = require('express')
-  , passport = require('passport')
-  , util = require('util')
-  , YandexStrategy = require('passport-yandex').Strategy;
+'use strict';
+const express = require('express');
+const session = require('express-session');
+const { Passport } = require('passport');
+const { randomBytes } = require('node:crypto');
+const { Strategy } = require('passport-yandex');
 
-var YANDEX_CLIENT_ID = "--insert-yandex-client-id-here--"
-var YANDEX_CLIENT_SECRET = "--insert-yandex-client-secret-here--";
-
-
-// Passport session setup.
-//   To support persistent login sessions, Passport needs to be able to
-//   serialize users into and deserialize users out of the session.  Typically,
-//   this will be as simple as storing the user ID when serializing, and finding
-//   the user by ID when deserializing.  However, since this example does not
-//   have a database of user records, the complete Yandex profile is
-//   serialized and deserialized.
-passport.serializeUser(function(user, done) {
-  done(null, user);
-});
-
-passport.deserializeUser(function(obj, done) {
-  done(null, obj);
-});
-
-
-// Use the YandexStrategy within Passport.
-//   Strategies in Passport require a `verify` function, which accept
-//   credentials (in this case, an accessToken, refreshToken, and Yandex
-//   profile), and invoke a callback with a user object.
-passport.use(new YandexStrategy({
-    clientID: YANDEX_CLIENT_ID,
-    clientSecret: YANDEX_CLIENT_SECRET,
-    callbackURL: "http://127.0.0.1:3000/auth/yandex/callback"
-  },
-  function(accessToken, refreshToken, profile, done) {
-    // asynchronous verification, for effect...
-    process.nextTick(function () {
-
-      // To keep the example simple, the user's Yandex profile is returned
-      // to represent the logged-in user.  In a typical application, you would
-      // want to associate the Yandex account with a user record in your
-      // database, and return that user instead.
-      return done(null, profile);
-    });
+function createApp(config = {}) {
+  const clientID = config.clientID || process.env.YANDEX_CLIENT_ID;
+  const clientSecret = config.clientSecret || process.env.YANDEX_CLIENT_SECRET;
+  const sessionSecret = config.sessionSecret || process.env.SESSION_SECRET;
+  const callbackURL = config.callbackURL || process.env.YANDEX_CALLBACK_URL || 'http://127.0.0.1:3000/auth/yandex/callback';
+  if (!clientID || !clientSecret || !sessionSecret) {
+    throw new Error('Set YANDEX_CLIENT_ID, YANDEX_CLIENT_SECRET and SESSION_SECRET');
   }
-));
-
-
-
-
-var app = express.createServer();
-
-// configure Express
-app.configure(function() {
+  const app = express();
+  const passport = new Passport();
   app.set('views', __dirname + '/views');
   app.set('view engine', 'ejs');
-  app.use(express.logger());
-  app.use(express.cookieParser());
-  app.use(express.bodyParser());
-  app.use(express.methodOverride());
-  app.use(express.session({ secret: 'keyboard cat' }));
-  // Initialize Passport!  Also use passport.session() middleware, to support
-  // persistent login sessions (recommended).
+  app.disable('x-powered-by');
+  app.use(express.urlencoded({ extended: false }));
+  app.use(session({
+    secret: sessionSecret,
+    resave: false,
+    saveUninitialized: false,
+    store: config.sessionStore,
+    cookie: { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' }
+  }));
   app.use(passport.initialize());
   app.use(passport.session());
-  app.use(app.router);
-  app.use(express.static(__dirname + '/public'));
-});
-
-
-app.get('/', function(req, res){
-  res.render('index', { user: req.user });
-});
-
-app.get('/account', ensureAuthenticated, function(req, res){
-  res.render('account', { user: req.user });
-});
-
-app.get('/login', function(req, res){
-  res.render('login', { user: req.user });
-});
-
-// GET /auth/yandex
-//   Use passport.authenticate() as route middleware to authenticate the
-//   request.  The first step in Yandex authentication will involve
-//   redirecting the user to yandex,ru.  After authorization, Yandex
-//   will redirect the user back to this application at /auth/yandex/callback
-app.get('/auth/yandex',
-  passport.authenticate('yandex'),
-  function(req, res){
-    // The request will be redirected to Yandex for authentication, so this
-    // function will not be called.
+  // Demo only: store a small presentation object. Real apps serialize a local
+  // user ID and load the account from their database in deserializeUser.
+  passport.serializeUser((user, done) => done(null, { id: user.id, displayName: user.displayName }));
+  passport.deserializeUser((user, done) => done(null, user));
+  passport.use(new Strategy({ clientID, clientSecret, callbackURL, scope: ['login:info'], state: true, pkce: 'S256' },
+    (accessToken, refreshToken, profile, done) => done(null, profile)));
+  app.use((req, res, next) => {
+    if (!req.session.csrfToken) req.session.csrfToken = randomBytes(32).toString('hex');
+    res.locals.user = req.user;
+    res.locals.csrfToken = req.session.csrfToken;
+    next();
   });
-
-// GET /auth/yandex/callback
-//   Use passport.authenticate() as route middleware to authenticate the
-//   request.  If authentication fails, the user will be redirected back to the
-//   login page.  Otherwise, the primary route function function will be called,
-//   which, in this example, will redirect the user to the home page.
-app.get('/auth/yandex/callback',
-  passport.authenticate('yandex', { failureRedirect: '/login' }),
-  function(req, res) {
-    res.redirect('/');
+  app.get('/', (req, res) => res.render('index'));
+  app.get('/login', (req, res) => res.render('login'));
+  app.get('/account', (req, res) => {
+    if (!req.isAuthenticated()) return res.redirect('/login');
+    res.render('account');
   });
+  app.get('/auth/yandex', passport.authenticate('yandex'));
+  app.get('/auth/yandex/callback', passport.authenticate('yandex', { failureRedirect: '/login' }), (req, res) => res.redirect('/account'));
+  app.post('/logout', (req, res, next) => {
+    if (!req.body.csrfToken || req.body.csrfToken !== req.session.csrfToken) return res.sendStatus(403);
+    req.logout(err => err ? next(err) : res.redirect('/'));
+  });
+  app.use((err, req, res, next) => {
+    // Do not log OAuth response bodies or tokens in this example.
+    res.status(500).send('Authentication failed. Please try again.');
+  });
+  return app;
+}
 
-app.get('/logout', function(req, res){
-  req.logout();
-  res.redirect('/');
-});
-
-app.listen(3000);
-
-
-// Simple route middleware to ensure user is authenticated.
-//   Use this route middleware on any resource that needs to be protected.  If
-//   the request is authenticated (typically via a persistent login session),
-//   the request will proceed.  Otherwise, the user will be redirected to the
-//   login page.
-function ensureAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) { return next(); }
-  res.redirect('/login')
+module.exports = { createApp };
+if (require.main === module) {
+  createApp().listen(3000, '127.0.0.1', () => console.log('Open http://127.0.0.1:3000'));
 }
