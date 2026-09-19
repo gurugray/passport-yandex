@@ -120,7 +120,7 @@ Only fields permitted by the token are available.
 | `name.givenName`, `name.familyName` | `first_name`, `last_name` |
 | `gender` | `male` or `female`; omitted if unknown |
 | `emails` | Unique nonempty addresses, default email first |
-| `photos` | Avatar thumbnail unless `is_avatar_empty` is true |
+| `photos` | Avatar thumbnail when `default_avatar_id` is nonempty and `is_avatar_empty` is not true |
 | `psuid` | Optional application-specific identifier; does not replace `id` |
 | `_raw`, `_json` | Original JSON response and parsed response |
 
